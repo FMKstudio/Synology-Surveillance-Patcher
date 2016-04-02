@@ -1,0 +1,48 @@
+This patch allows to use 15 cameras within synology surveillance station (7.2.1 - build 4206) on DS214 play 
+
+library: /var/packages/SurveillanceStation/target/lib/libsynoss_1.so 
+function: _ZNK20ShmLicenseCountCache15GetLicenseCountEv
+
+Bytecode:
+8B 44 24 04   mov     eax, [esp+arg_0]
+8B 40 1C      mov     eax, [eax]
+C3            retn
+
+IDA disassembly:
+LOAD:002910B0 ; ShmLicenseCountCache::GetLicenseCount(void)const
+LOAD:002910B0                 public _ZNK20ShmLicenseCountCache15GetLicenseCountEv
+LOAD:002910B0 _ZNK20ShmLicenseCountCache15GetLicenseCountEv proc near
+LOAD:002910B0                                         ; CODE XREF: SSKeyMgr::GetLicenseCountInfo(int *,int *)+61p
+LOAD:002910B0
+LOAD:002910B0 arg_0           = dword ptr  4
+LOAD:002910B0
+LOAD:002910B0                 mov     eax, [esp+arg_0]
+LOAD:002910B4                 mov     eax, [eax+1Ch]
+LOAD:002910B7                 retn
+LOAD:002910B7 _ZNK20ShmLicenseCountCache15GetLicenseCountEv endp
+
+Equivalent pseudocode:
+int __cdecl ShmLicenseCountCache::GetLicenseCount(void)
+{
+  return *(_DWORD *)(this + 0x1C);
+}
+
+Target pseudocode:
+int __cdecl ShmLicenseCountCache::GetLicenseCount(void)
+{
+  return 15;
+}
+
+Target bytecode:
+B8 0F 00 00 00  mov eax, 15 
+C3              retn 
+90              nop 
+90              nop
+
+Patch:
+@002910b0: 8B 44 24 04 8B 40 1C C3 -> B8 05 00 00 00 C3 90 90
+
+Other suspicous functions:
+  SSKey::GetLicenseCount()
+  SSKeyMgr::GetDefaultLicenseCnt()
+  ShmLicenseCountCache::GetKeyCount
